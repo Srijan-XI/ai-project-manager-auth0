@@ -36,18 +36,21 @@ This guide shows you how to run everything locally first, then deploy for free.
    Technology: Node.js
    ```
 
-3. **Configure Application Settings** (Start with localhost only):
+3. **Configure Application Settings** (Local + Production):
    ```
    Application Settings Tab:
    
    Allowed Callback URLs:
-   http://localhost:3000/callback
+   http://localhost:3000/callback,
+   https://ai-project-manager-auth0.vercel.app/callback
    
    Allowed Logout URLs:
-   http://localhost:3000
+   http://localhost:3000,
+   https://ai-project-manager-auth0.vercel.app
    
    Allowed Web Origins:
-   http://localhost:3000
+   http://localhost:3000,
+   https://ai-project-manager-auth0.vercel.app
    
    Allowed Origins (CORS):
    http://localhost:3000

@@ -2,6 +2,13 @@
 
 A comprehensive demonstration of building secure agentic AI applications using Auth0 for AI Agents. This project showcases Universal Login, Token Vault, Fine-Grained Authorization (FGA), and Asynchronous Authorization working together to create enterprise-ready AI agents.
 
+## 🌐 Live Demo
+
+**Production URL**: https://ai-project-manager-auth0.vercel.app/
+
+- **Health Check**: https://ai-project-manager-auth0.vercel.app/api/health
+- **Source Code**: https://github.com/Srijan-XI/ai-project-manager-auth0
+
 ## 🔒 Security Features Demonstrated
 
 ### 1. **Universal Login**

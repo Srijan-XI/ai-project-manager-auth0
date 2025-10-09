@@ -2,6 +2,9 @@
 
 ## Get Your AI Project Manager Running in 15 Minutes
 
+**Live Demo Available**: https://ai-project-manager-auth0.vercel.app/
+**Health Check**: https://ai-project-manager-auth0.vercel.app/api/health
+
 ### Step 1: Local Setup (5 minutes)
 
 1. **Clone the project**:
