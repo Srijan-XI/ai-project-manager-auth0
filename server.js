@@ -26,22 +26,20 @@ const auth0Client = new AuthenticationClient({
     clientSecret: AUTH0_CONFIG.clientSecret
 });
 
-// FGA Client Configuration
-const { OpenFgaClient } = require('@openfga/sdk');
-const fgaClient = new OpenFgaClient({
-    apiUrl: process.env.FGA_API_URL || 'https://api.fga.dev',
-    storeId: FGA_CONFIG.store.id,
-    authorizationModelId: FGA_CONFIG.store.authorizationModelId,
-    credentials: {
-        method: 'client_credentials',
-        config: {
-            clientId: process.env.FGA_CLIENT_ID,
-            clientSecret: process.env.FGA_CLIENT_SECRET,
-            apiTokenIssuer: process.env.FGA_API_URL || 'https://api.fga.dev',
-            apiAudience: process.env.FGA_API_URL || 'https://api.fga.dev'
-        }
+// FGA Client Configuration (Optional)
+let fgaClient = null;
+try {
+    if (process.env.FGA_STORE_ID && process.env.FGA_CLIENT_ID) {
+        const { OpenFgaClient } = require('@openfga/sdk');
+        fgaClient = new OpenFgaClient({
+            apiUrl: process.env.FGA_API_URL || 'https://api.fga.dev',
+            storeId: process.env.FGA_STORE_ID,
+            authorizationModelId: process.env.FGA_MODEL_ID
+        });
     }
-});
+} catch (error) {
+    console.log('FGA not configured, using mock permissions');
+}
 
 // Express OpenID Connect configuration
 const config = {
@@ -180,6 +178,23 @@ app.post('/api/fga/check-access', requireAuth, async (req, res) => {
     try {
         const { resource, relation } = req.body;
         const user = req.oidc.user;
+        
+        if (!fgaClient) {
+            // Mock permissions for demo when FGA not configured
+            const mockPermissions = {
+                'document:project-plan:viewer': true,
+                'document:requirements:viewer': true,
+                'document:requirements:editor': true,
+                'document:architecture:viewer': true
+            };
+            const key = `${resource}:${relation}`;
+            res.json({
+                allowed: mockPermissions[key] || false,
+                resource: resource,
+                relation: relation
+            });
+            return;
+        }
         
         const checkResult = await fgaClient.check({
             user: `user:${user.sub}`,
