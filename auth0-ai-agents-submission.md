@@ -6,7 +6,7 @@
 
 I built an **AI Project Manager** that demonstrates how Auth0 for AI Agents transforms agentic applications from security liabilities into enterprise-ready solutions. The app showcases Universal Login, Token Vault, Fine-Grained Authorization (FGA), and Asynchronous Authorization working together to create a secure, scalable AI agent that manages projects while maintaining strict security boundaries.
 
-**🔗 [Live Demo](https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/377b5db8b383208d450578f8e6c2d880/b82804b2-a61b-4579-86eb-d169ea336941/index.html)**
+**🔗 [Live Demo](https://ai-project-manager-auth0.vercel.app/)**
 
 ## 🚀 The Problem: AI Agents Need Security-First Design
 
