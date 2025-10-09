@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Project Manager - Secure AI Agents with Auth0</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth0-config.js"></script>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing-page" class="page">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="flex items-center justify-between">
+                    <div class="logo">
+                        <h2>🤖 AI Project Manager</h2>
+                    </div>
+                    <button class="btn btn--primary" onclick="initiateLogin()">
+                        Login with Auth0
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Secure AI Project Management</h1>
+                    <p class="hero-subtitle">Experience next-generation AI agents protected by Auth0's enterprise-grade security. Manage projects, control access, and ensure compliance with fine-grained authorization.</p>
+                    
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🔐</div>
+                            <h3>Universal Login</h3>
+                            <p>Secure user authentication with OAuth 2.0</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔑</div>
+                            <h3>Token Vault</h3>
+                            <p>Secure API token management</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <h3>Fine-Grained Auth</h3>
+                            <p>Document-level access control</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔄</div>
+                            <h3>Async Authorization</h3>
+                            <p>Human-in-the-loop controls</p>
+                        </div>
+                    </div>
+
+                    <button class="btn btn--primary btn--lg" onclick="showLoginModal()">
+                        Start Secure Demo
+                    </button>
+                </div>
+                
+                <div class="hero-image">
+                    <img src="https://pplx-res.cloudinary.com/image/upload/v1754712469/pplx_project_search_images/6f25cd7162d9e49e40a3d97fc3705419c35993d1.png" alt="AI Agent Architecture" />
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2>Auth0 for AI Agents Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1760030574/pplx_project_search_images/2836a61672a3c0ff499d3b757383a380a12e26ff.png" alt="Token Vault" />
+                        <h3>Token Vault Security</h3>
+                        <p>Secure storage and management of third-party API tokens with automatic refresh and scoped permissions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1760030574/pplx_project_search_images/fc6d8fd9574ea7b82870ca77c71f9cab69e35568.png" alt="Fine-Grained Authorization" />
+                        <h3>Fine-Grained Authorization</h3>
+                        <p>Document-level access control for RAG pipelines with relationship-based permissions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1755204800/pplx_project_search_images/fda615105d5ee1f2d47f4de5fb247ba3dbf6b1b7.png" alt="AI Agents vs Traditional" />
+                        <h3>Autonomous AI Security</h3>
+                        <p>Advanced security controls for autonomous AI agents with adaptive decision-making capabilities.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="page hidden">
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="container">
+                <div class="flex items-center justify-between">
+                    <div class="logo">
+                        <h2>🤖 AI Project Manager</h2>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Srijan Kumar</span>
+                        <button class="btn btn--outline btn--sm" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <div class="container">
+                <div class="dashboard-grid">
+                    <!-- Sidebar -->
+                    <aside class="dashboard-sidebar">
+                        <nav class="nav-menu">
+                            <button class="nav-item active" onclick="showSection('overview')">
+                                📊 Overview
+                            </button>
+                            <button class="nav-item" onclick="showSection('calendar')">
+                                📅 Calendar
+                            </button>
+                            <button class="nav-item" onclick="showSection('documents')">
+                                📄 Documents
+                            </button>
+                            <button class="nav-item" onclick="showSection('notifications')">
+                                🔔 Notifications
+                            </button>
+                            <button class="nav-item" onclick="showSection('security')">
+                                🔒 Security
+                            </button>
+                            <button class="nav-item" onclick="showSection('technical')">
+                                ⚙️ Technical
+                            </button>
+                        </nav>
+                    </aside>
+
+                    <!-- Content Area -->
+                    <div class="dashboard-content">
+                        <!-- Overview Section -->
+                        <section id="overview-section" class="content-section">
+                            <h2>Security Dashboard</h2>
+                            
+                            <!-- Auth0 Features Status -->
+                            <div class="features-status">
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h3>🔐 Universal Login</h3>
+                                        <span class="status status--success">Active</span>
+                                    </div>
+                                    <p>OAuth 2.0 and OpenID Connect authentication</p>
+                                    <ul>
+                                        <li>Single sign-on</li>
+                                        <li>Multi-factor authentication</li>
+                                        <li>Social login integration</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h3>🔑 Token Vault</h3>
+                                        <span class="status status--success">Active</span>
+                                    </div>
+                                    <p>Secure storage and management of third-party API tokens</p>
+                                    <ul>
+                                        <li>No token exposure</li>
+                                        <li>Automatic refresh</li>
+                                        <li>Scoped permissions</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h3>⚡ Fine-Grained Authorization</h3>
+                                        <span class="status status--success">Active</span>
+                                    </div>
+                                    <p>Document-level access control for RAG pipelines</p>
+                                    <ul>
+                                        <li>Relationship-based permissions</li>
+                                        <li>Dynamic access control</li>
+                                        <li>Compliance support</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h3>🔄 Asynchronous Authorization</h3>
+                                        <span class="status status--warning">Pending</span>
+                                    </div>
+                                    <p>Human-in-the-loop controls for critical actions</p>
+                                    <ul>
+                                        <li>CIBA support</li>
+                                        <li>Push notifications</li>
+                                        <li>Audit trails</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- AI Assistant Chat -->
+                            <div class="ai-chat">
+                                <h3>AI Assistant</h3>
+                                <div class="chat-messages" id="chat-messages">
+                                    <div class="chat-message assistant">
+                                        <strong>AI Assistant:</strong> Welcome! I'm your secure AI project manager. All my actions are protected by Auth0's security features. How can I help you today?
+                                    </div>
+                                </div>
+                                <div class="chat-input">
+                                    <input type="text" class="form-control" placeholder="Ask me about your projects..." id="chat-input" />
+                                    <button class="btn btn--primary" onclick="sendMessage()">Send</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Calendar Section -->
+                        <section id="calendar-section" class="content-section hidden">
+                            <h2>📅 Calendar Integration</h2>
+                            <div class="token-vault-demo">
+                                <div class="card">
+                                    <div class="card__header">
+                                        <h3>Token Vault in Action</h3>
+                                        <span class="status status--success">Google Calendar Connected</span>
+                                    </div>
+                                    <div class="card__body">
+                                        <p>Your calendar events are securely accessed through Auth0's Token Vault. No API keys are exposed to the client.</p>
+                                        
+                                        <div class="calendar-events">
+                                            <div class="event-item">
+                                                <div class="event-time">2:00 PM - 3:00 PM</div>
+                                                <div class="event-details">
+                                                    <h4>Auth0 Integration Review</h4>
+                                                    <p>Attendees: alice@techcorp.com, bob@techcorp.com</p>
+                                                    <small class="text-secondary">Source: Google Calendar via Token Vault</small>
+                                                </div>
+                                            </div>
+                                            <div class="event-item">
+                                                <div class="event-time">4:00 PM - 5:00 PM</div>
+                                                <div class="event-details">
+                                                    <h4>Security Architecture Meeting</h4>
+                                                    <p>Attendees: charlie@techcorp.com, david@techcorp.com</p>
+                                                    <small class="text-secondary">Source: Google Calendar via Token Vault</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Documents Section -->
+                        <section id="documents-section" class="content-section hidden">
+                            <h2>📄 Document Access Control</h2>
+                            <div class="fga-demo">
+                                <div class="card">
+                                    <div class="card__header">
+                                        <h3>Fine-Grained Authorization Demo</h3>
+                                        <span class="status status--info">Permission-Based Access</span>
+                                    </div>
+                                    <div class="card__body">
+                                        <p>Documents are protected by relationship-based permissions. Your access level determines what you can see and do.</p>
+                                        
+                                        <div class="projects-list">
+                                            <div class="project-item">
+                                                <h4>Auth0 AI Integration</h4>
+                                                <span class="status status--warning">In Progress</span>
+                                                <div class="documents-list">
+                                                    <div class="document-item owner">
+                                                        <span class="doc-icon">📄</span>
+                                                        <span class="doc-name">Architecture Spec</span>
+                                                        <span class="permission-badge owner">Owner</span>
+                                                        <button class="btn btn--sm btn--primary">View</button>
+                                                    </div>
+                                                    <div class="document-item editor">
+                                                        <span class="doc-icon">📄</span>
+                                                        <span class="doc-name">Security Guidelines</span>
+                                                        <span class="permission-badge editor">Editor</span>
+                                                        <button class="btn btn--sm btn--primary">Edit</button>
+                                                    </div>
+                                                    <div class="document-item viewer">
+                                                        <span class="doc-icon">📄</span>
+                                                        <span class="doc-name">API Documentation</span>
+                                                        <span class="permission-badge viewer">Viewer</span>
+                                                        <button class="btn btn--sm btn--outline">View Only</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="project-item">
+                                                <h4>RAG Pipeline Security</h4>
+                                                <span class="status status--info">Planning</span>
+                                                <div class="documents-list">
+                                                    <div class="document-item owner">
+                                                        <span class="doc-icon">📄</span>
+                                                        <span class="doc-name">Requirements Doc</span>
+                                                        <span class="permission-badge owner">Owner</span>
+                                                        <button class="btn btn--sm btn--primary">View</button>
+                                                    </div>
+                                                    <div class="document-item no-access">
+                                                        <span class="doc-icon">🚫</span>
+                                                        <span class="doc-name">Technical Spec</span>
+                                                        <span class="permission-badge no-access">No Access</span>
+                                                        <button class="btn btn--sm" disabled>Blocked</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Notifications Section -->
+                        <section id="notifications-section" class="content-section hidden">
+                            <h2>🔔 Team Notifications</h2>
+                            <div class="async-auth-demo">
+                                <div class="card">
+                                    <div class="card__header">
+                                        <h3>Asynchronous Authorization</h3>
+                                        <span class="status status--warning">CIBA Flow Active</span>
+                                    </div>
+                                    <div class="card__body">
+                                        <p>High-privilege actions require human approval through Client Initiated Backchannel Authentication (CIBA).</p>
+                                        
+                                        <div class="notification-actions">
+                                            <button class="btn btn--primary" onclick="requestApproval('slack-notification')">
+                                                Send Team Notification via Slack
+                                            </button>
+                                            <button class="btn btn--primary" onclick="requestApproval('delete-project')">
+                                                Delete Project (High Risk)
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="approval-status" id="approval-status">
+                                            <div class="approval-item pending">
+                                                <span class="approval-icon">⏳</span>
+                                                <div class="approval-details">
+                                                    <h4>Slack Notification Request</h4>
+                                                    <p>Waiting for approval from project manager</p>
+                                                    <small>Initiated via CIBA flow</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Security Section -->
+                        <section id="security-section" class="content-section hidden">
+                            <h2>🔒 Security Audit Trail</h2>
+                            <div class="security-logs">
+                                <div class="card">
+                                    <div class="card__header">
+                                        <h3>Recent Security Events</h3>
+                                        <span class="status status--success">All Systems Secure</span>
+                                    </div>
+                                    <div class="card__body">
+                                        <div class="log-entries">
+                                            <div class="log-entry success">
+                                                <span class="log-time">10:30:00</span>
+                                                <span class="log-event">User authenticated via Universal Login</span>
+                                                <span class="log-status success">Success</span>
+                                            </div>
+                                            <div class="log-entry success">
+                                                <span class="log-time">10:31:00</span>
+                                                <span class="log-event">Token exchange requested for Google Calendar</span>
+                                                <span class="log-status success">Success</span>
+                                            </div>
+                                            <div class="log-entry success">
+                                                <span class="log-time">10:32:00</span>
+                                                <span class="log-event">FGA check for document access</span>
+                                                <span class="log-status success">Success</span>
+                                            </div>
+                                            <div class="log-entry warning">
+                                                <span class="log-time">10:33:00</span>
+                                                <span class="log-event">Async authorization requested</span>
+                                                <span class="log-status warning">Pending</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Technical Section -->
+                        <section id="technical-section" class="content-section hidden">
+                            <h2>⚙️ Technical Implementation</h2>
+                            <div class="technical-docs">
+                                <div class="card">
+                                    <div class="card__header">
+                                        <h3>Code Examples</h3>
+                                        <button class="btn btn--outline btn--sm" onclick="showCodeModal()">View All Examples</button>
+                                    </div>
+                                    <div class="card__body">
+                                        <div class="code-preview">
+                                            <h4>User Authentication</h4>
+                                            <pre><code>// Auth0 Universal Login Integration
+import { Auth0Provider } from '@auth0/auth0-react';
+
+function App() {
+  return (
+    &lt;Auth0Provider
+      domain="your-domain.auth0.com"
+      clientId="your-client-id"
+      redirectUri={window.location.origin}
+    &gt;
+      &lt;MyApp /&gt;
+    &lt;/Auth0Provider&gt;
+  );
+}</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="architecture-diagram">
+                                    <h3>Architecture Overview</h3>
+                                    <img src="https://pplx-res.cloudinary.com/image/upload/v1754882899/pplx_project_search_images/e360e7190211f0127a5ca6ef74b9bdfae3713b3c.png" alt="Security Architecture" />
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Auth0 Universal Login</h3>
+            <p>In a real implementation, this would redirect to Auth0's Universal Login page.</p>
+            <div class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" value="srijan@techcorp.com" readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" value="••••••••" readonly />
+                </div>
+                <button class="btn btn--primary btn--full-width" onclick="simulateLogin()">
+                    Continue with Auth0
+                </button>
+                <button class="btn btn--outline btn--full-width" onclick="hideLoginModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Examples Modal -->
+    <div id="code-modal" class="modal hidden">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Technical Implementation</h3>
+                <button class="btn btn--outline btn--sm" onclick="hideCodeModal()">Close</button>
+            </div>
+            <div class="code-examples">
+                <div class="code-example">
+                    <h4>Token Vault Access</h4>
+                    <pre><code>// Secure API access via Token Vault
+async function getCalendarEvents() {
+  const response = await fetch('/api/calendar', {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+  return response.json();
+}</code></pre>
+                </div>
+                
+                <div class="code-example">
+                    <h4>FGA Permission Check</h4>
+                    <pre><code>// Fine-grained authorization check
+const { allowed } = await fgaClient.check({
+  user: 'user:srijan',
+  relation: 'viewer', 
+  object: 'document:arch-spec'
+});
+
+if (allowed) {
+  return documentContent;
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

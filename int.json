@@ -1,0 +1,89 @@
+{
+    "implementation_guide": {
+        "title": "Building a Secure Agentic AI Application with Auth0 for AI Agents",
+        "sections": [
+            {
+                "section": "Introduction & Architecture",
+                "subsections": [
+                    "Why Security Matters in AI Agents",
+                    "Auth0 for AI Agents Overview", 
+                    "Application Architecture"
+                ]
+            },
+            {
+                "section": "Core Implementation",
+                "subsections": [
+                    "User Authentication Setup",
+                    "Token Vault Configuration", 
+                    "Fine-Grained Authorization (FGA) for RAG",
+                    "Asynchronous Authorization"
+                ]
+            },
+            {
+                "section": "Practical Example: AI Project Manager",
+                "subsections": [
+                    "Application Overview",
+                    "Step-by-Step Implementation",
+                    "Code Examples",
+                    "Security Benefits"
+                ]
+            },
+            {
+                "section": "Best Practices & Deployment",
+                "subsections": [
+                    "Security Best Practices",
+                    "Performance Optimization",
+                    "Monitoring & Observability"
+                ]
+            }
+        ],
+        "key_features": [
+            "Universal Login for user authentication",
+            "Token Vault for secure API access",
+            "Fine-grained authorization for RAG pipelines",
+            "Human-in-the-loop controls with async authorization",
+            "Enterprise-grade security with minimal code"
+        ],
+        "use_case": {
+            "name": "AI Project Manager Assistant",
+            "description": "A secure AI assistant that helps manage software projects by accessing user calendars, project documents, and team collaboration tools",
+            "features": [
+                "Schedule meetings via Google Calendar",
+                "Access project documents with fine-grained permissions",
+                "Send team notifications through Slack",
+                "Generate project reports from authorized data"
+            ]
+        }
+    },
+    "code_examples": {
+        "user_auth": "// User Authentication with Auth0\nimport { Auth0Provider } from '@auth0/auth0-react';\nimport { Auth0AI } from '@auth0/auth0-ai-sdk';\n\nconst auth0AI = new Auth0AI({\n  domain: process.env.AUTH0_DOMAIN,\n  clientId: process.env.AUTH0_CLIENT_ID,\n  audience: process.env.AUTH0_AUDIENCE\n});\n\nexport function AuthWrapper({ children }) {\n  return (\n    <Auth0Provider\n      domain={process.env.AUTH0_DOMAIN}\n      clientId={process.env.AUTH0_CLIENT_ID}\n      redirectUri={window.location.origin}\n      audience={process.env.AUTH0_AUDIENCE}\n    >\n      {children}\n    </Auth0Provider>\n  );\n}",
+        "token_vault": "// Token Vault Configuration for External APIs\nconst tokenVaultConfig = {\n  connection: \"google-oauth2\",\n  scopes: [\"openid\", \"profile\", \"email\", \"calendar.events\"],\n  refreshToken: getAuth0RefreshToken()\n};\n\n// Exchange Auth0 token for Google access token\nasync function getGoogleToken(userId) {\n  const response = await fetch('/api/token-exchange', {\n    method: 'POST',\n    headers: {\n      'Authorization': `Bearer ${accessToken}`,\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({\n      grant_type: 'urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token',\n      connection: 'google-oauth2',\n      subject_token: accessToken,\n      subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',\n      requested_token_type: 'http://auth0.com/oauth/token-type/federated-connection-access-token'\n    })\n  });\n  \n  return response.json();\n}",
+        "fga_rag": "// Fine-Grained Authorization for RAG\nimport { OpenFgaApi } from '@openfga/sdk';\n\nconst fgaClient = new OpenFgaApi({\n  apiUrl: process.env.FGA_API_URL,\n  storeId: process.env.FGA_STORE_ID,\n  authorizationModelId: process.env.FGA_MODEL_ID\n});\n\n// Check user permissions before RAG retrieval\nasync function getAuthorizedDocuments(userId, query) {\n  // Get candidate documents from vector search\n  const candidateDocs = await vectorStore.similaritySearch(query);\n  \n  // Filter documents based on user permissions\n  const authorizedDocs = [];\n  \n  for (const doc of candidateDocs) {\n    const { allowed } = await fgaClient.check({\n      tupleKey: {\n        user: `user:${userId}`,\n        relation: 'viewer',\n        object: `document:${doc.id}`\n      }\n    });\n    \n    if (allowed) {\n      authorizedDocs.push(doc);\n    }\n  }\n  \n  return authorizedDocs;\n}",
+        "async_auth": "// Asynchronous Authorization with CIBA\nasync function requestAsyncApproval(userId, action, context) {\n  const cibaResponse = await fetch('/oauth/bc-authorize', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/x-www-form-urlencoded',\n      'Authorization': `Basic ${clientCredentials}`\n    },\n    body: new URLSearchParams({\n      'scope': 'execute:high_risk_action',\n      'login_hint': userId,\n      'binding_message': `Approve ${action}`,\n      'user_code': generateUserCode()\n    })\n  });\n  \n  const { auth_req_id } = await cibaResponse.json();\n  \n  // Poll for approval\n  return pollForApproval(auth_req_id);\n}"
+    },
+    "project_integration": {
+        "connected_files": [
+            "index.html - Main UI with Auth0 integration",
+            "app.js - Frontend logic with FGA and Token Vault",
+            "server.js - Express server with complete Auth0 integration",
+            "auth0-config.js - Centralized Auth0 configuration",
+            "auth0-post-login-action.js - User profile enrichment",
+            "package.json - Dependencies and scripts",
+            "README.md - Complete documentation"
+        ],
+        "integration_points": [
+            "Universal Login flow between frontend and server",
+            "FGA permissions checking in document access",
+            "Token Vault integration for third-party APIs",
+            "Post-Login Action enriching user profiles",
+            "Async authorization for sensitive operations"
+        ],
+        "security_layers": [
+            "Authentication via Auth0 Universal Login",
+            "Authorization via Fine-Grained Authorization (FGA)",
+            "Token management via Auth0 Token Vault",
+            "Profile enrichment via Post-Login Actions",
+            "Human oversight via Asynchronous Authorization"
+        ]
+    }
+}
