@@ -100,11 +100,20 @@ app.use(express.static('public'));
 
 // Health check endpoint (must be before auth middleware)
 app.get('/api/health', (req, res) => {
+    const auth0Configured = !!(
+        process.env.AUTH0_DOMAIN && 
+        process.env.AUTH0_CLIENT_ID && 
+        process.env.AUTH0_CLIENT_SECRET &&
+        process.env.AUTH0_DOMAIN !== 'demo.auth0.com' &&
+        process.env.AUTH0_CLIENT_ID !== 'demo-client-id'
+    );
+    
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
-        auth0_configured: !!(process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID),
-        fga_configured: !!(process.env.FGA_STORE_ID && process.env.FGA_CLIENT_ID)
+        auth0_configured: auth0Configured,
+        fga_configured: !!(process.env.FGA_STORE_ID && process.env.FGA_CLIENT_ID),
+        auth0_domain: process.env.AUTH0_DOMAIN || 'not-set'
     });
 });
 
