@@ -6,7 +6,6 @@
 const express = require('express');
 const { auth } = require('express-openid-connect');
 const { ManagementClient, AuthenticationClient } = require('auth0');
-const { CredentialsMethod } = require('auth0-fga-sdk');
 const axios = require('axios');
 const { AUTH0_CONFIG, TOKEN_VAULT_CONFIG, FGA_CONFIG } = require('./auth0-config');
 
@@ -30,14 +29,16 @@ const auth0Client = new AuthenticationClient({
 // FGA Client Configuration
 const { OpenFgaClient } = require('@openfga/sdk');
 const fgaClient = new OpenFgaClient({
-    apiUrl: process.env.FGA_API_URL,
+    apiUrl: process.env.FGA_API_URL || 'https://api.fga.dev',
     storeId: FGA_CONFIG.store.id,
     authorizationModelId: FGA_CONFIG.store.authorizationModelId,
     credentials: {
-        method: CredentialsMethod.ClientCredentials,
+        method: 'client_credentials',
         config: {
             clientId: process.env.FGA_CLIENT_ID,
-            clientSecret: process.env.FGA_CLIENT_SECRET
+            clientSecret: process.env.FGA_CLIENT_SECRET,
+            apiTokenIssuer: process.env.FGA_API_URL || 'https://api.fga.dev',
+            apiAudience: process.env.FGA_API_URL || 'https://api.fga.dev'
         }
     }
 });
@@ -81,6 +82,9 @@ app.use(auth(config));
 app.use(express.json());
 app.use(express.static('public'));
 
+// Serve static files
+app.use(express.static(__dirname + '/public'));
+
 // Middleware to check authentication
 const requireAuth = (req, res, next) => {
     if (!req.oidc.isAuthenticated()) {
@@ -95,10 +99,10 @@ const requireAuth = (req, res, next) => {
 app.get('/', (req, res) => {
     if (req.oidc.isAuthenticated()) {
         // User is authenticated, serve the main app
-        res.sendFile(__dirname + '/index.html');
+        res.sendFile(__dirname + '/public/index.html');
     } else {
         // User is not authenticated, show landing page
-        res.sendFile(__dirname + '/index.html');
+        res.sendFile(__dirname + '/public/index.html');
     }
 });
 
