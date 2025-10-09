@@ -108,6 +108,18 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Debug endpoint to check environment variables (remove this in production)
+app.get('/api/debug-env', (req, res) => {
+    res.json({
+        AUTH0_DOMAIN: process.env.AUTH0_DOMAIN ? 'SET' : 'NOT SET',
+        AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID ? 'SET' : 'NOT SET', 
+        AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET ? 'SET' : 'NOT SET',
+        SESSION_SECRET: process.env.SESSION_SECRET ? 'SET' : 'NOT SET',
+        BASE_URL: process.env.BASE_URL ? 'SET' : 'NOT SET',
+        NODE_ENV: process.env.NODE_ENV || 'undefined'
+    });
+});
+
 // Only apply auth middleware if Auth0 is configured
 if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
     app.use(auth(config));
