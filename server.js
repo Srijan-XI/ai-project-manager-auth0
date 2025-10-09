@@ -7,24 +7,42 @@ const express = require('express');
 const { auth } = require('express-openid-connect');
 const { ManagementClient, AuthenticationClient } = require('auth0');
 const axios = require('axios');
-const { AUTH0_CONFIG, TOKEN_VAULT_CONFIG, FGA_CONFIG } = require('./auth0-config');
+require('dotenv').config();
+
+// Configuration with environment variables and fallbacks
+const AUTH0_CONFIG = {
+    domain: process.env.AUTH0_DOMAIN || 'demo.auth0.com',
+    clientId: process.env.AUTH0_CLIENT_ID || 'demo-client-id',
+    clientSecret: process.env.AUTH0_CLIENT_SECRET || 'demo-client-secret',
+    audience: process.env.AUTH0_AUDIENCE || `https://${process.env.AUTH0_DOMAIN || 'demo.auth0.com'}/api/v2/`,
+};
 
 const app = express();
 
-// Auth0 Management Client for user management
-const management = new ManagementClient({
-    domain: AUTH0_CONFIG.domain,
-    clientId: AUTH0_CONFIG.clientId,
-    clientSecret: AUTH0_CONFIG.clientSecret,
-    scope: 'read:users update:users read:user_metadata update:user_metadata'
-});
+// Auth0 Management Client for user management (with error handling)
+let management = null;
+let auth0Client = null;
 
-// Auth0 Authentication Client for token exchange
-const auth0Client = new AuthenticationClient({
-    domain: AUTH0_CONFIG.domain,
-    clientId: AUTH0_CONFIG.clientId,
-    clientSecret: AUTH0_CONFIG.clientSecret
-});
+try {
+    if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
+        management = new ManagementClient({
+            domain: AUTH0_CONFIG.domain,
+            clientId: AUTH0_CONFIG.clientId,
+            clientSecret: AUTH0_CONFIG.clientSecret,
+            scope: 'read:users update:users read:user_metadata update:user_metadata'
+        });
+
+        auth0Client = new AuthenticationClient({
+            domain: AUTH0_CONFIG.domain,
+            clientId: AUTH0_CONFIG.clientId,
+            clientSecret: AUTH0_CONFIG.clientSecret
+        });
+    } else {
+        console.log('⚠️  Auth0 credentials not configured - using demo mode');
+    }
+} catch (error) {
+    console.log('⚠️  Auth0 client initialization failed:', error.message);
+}
 
 // FGA Client Configuration (Optional)
 let fgaClient = null;
@@ -45,8 +63,8 @@ try {
 const config = {
     authRequired: false,
     auth0Logout: true,
-    secret: process.env.SESSION_SECRET,
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    secret: process.env.SESSION_SECRET || 'demo-session-secret-for-development-only',
+    baseURL: process.env.BASE_URL || process.env.VERCEL_URL || 'http://localhost:3000',
     clientID: AUTH0_CONFIG.clientId,
     issuerBaseURL: `https://${AUTH0_CONFIG.domain}`,
     clientSecret: AUTH0_CONFIG.clientSecret,
@@ -76,9 +94,34 @@ const config = {
     }
 };
 
-app.use(auth(config));
+// Basic middleware
 app.use(express.json());
 app.use(express.static('public'));
+
+// Health check endpoint (must be before auth middleware)
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        auth0_configured: !!(process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID),
+        fga_configured: !!(process.env.FGA_STORE_ID && process.env.FGA_CLIENT_ID)
+    });
+});
+
+// Only apply auth middleware if Auth0 is configured
+if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
+    app.use(auth(config));
+} else {
+    console.log('⚠️  Auth0 not configured - skipping authentication middleware');
+    // Mock authentication for demo mode
+    app.use((req, res, next) => {
+        req.oidc = {
+            isAuthenticated: () => false,
+            user: null
+        };
+        next();
+    });
+}
 
 // Serve static files
 app.use(express.static(__dirname + '/public'));
@@ -326,9 +369,11 @@ app.use((error, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`AI Project Manager server running on port ${PORT}`);
-    console.log(`Auth0 domain: ${AUTH0_CONFIG.domain}`);
-    console.log(`FGA Store ID: ${FGA_CONFIG.store.id}`);
+    console.log(`✅ AI Project Manager server running on port ${PORT}`);
+    console.log(`✅ Auth0 domain: ${AUTH0_CONFIG.domain}`);
+    console.log(`✅ Auth0 configured: ${!!(process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID)}`);
+    console.log(`✅ FGA configured: ${!!(process.env.FGA_STORE_ID)}`);
+    console.log(`✅ Health check: /api/health`);
 });
 
 module.exports = app;
