@@ -331,6 +331,49 @@ See `auth0-ai-agents-submission.md` for the complete DEV.to challenge submission
 - Implement proper session management
 - Use secure headers and CORS policies
 
+## 🛠️ Vercel & Auth0 Deployment Checklist
+
+### 1. Set Environment Variables in Vercel
+
+Add these in your Vercel project dashboard (Settings → Environment Variables):
+
+```
+AUTH0_DOMAIN=genai-864988247141573.us.auth0.com
+AUTH0_CLIENT_ID=your_client_id_from_auth0
+AUTH0_CLIENT_SECRET=your_client_secret_from_auth0
+AUTH0_AUDIENCE=https://api.ai-project-manager.com
+SESSION_SECRET=your_random_64_char_string
+BASE_URL=https://ai-project-manager-auth0.vercel.app
+```
+
+- **Copy-paste values directly from your Auth0 dashboard.**
+- Make sure to use zero (`0`) not letter O in `auth0.com`.
+- Set for **All Environments** (Production, Preview, Development).
+
+### 2. Redeploy After Setting Variables
+- After saving, trigger a redeploy in Vercel to apply changes.
+
+### 3. Verify Health Check
+- Visit: `https://ai-project-manager-auth0.vercel.app/api/health`
+- You should see:
+
+```json
+{
+  "status": "ok",
+  "auth0_configured": true,
+  ...
+}
+```
+
+If `auth0_configured` is `false`, double-check your variable names and values, then redeploy.
+
+### 4. Test Login Flow
+- Visit: `https://ai-project-manager-auth0.vercel.app/`
+- Click **Login** and complete Auth0 authentication.
+- You should be redirected back to your app.
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository
