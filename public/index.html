@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+        <script>
+            // Debug: Check if Auth0 SPA login handler is present after DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.initiateAuth0Login !== 'function') {
+                    console.error('[Auth0 SPA] initiateAuth0Login is NOT defined. Check if auth0-spa-client.js loaded and has no errors.');
+                } else {
+                    console.log('[Auth0 SPA] initiateAuth0Login is present.');
+                }
+            });
+        </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Project Manager - Secure AI Agents with Auth0</title>
