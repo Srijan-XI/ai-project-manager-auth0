@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const path = require('path');
 const { auth } = require('express-openid-connect');
 const { auth: jwtAuth } = require('express-oauth2-jwt-bearer');
 const { ManagementClient, AuthenticationClient } = require('auth0');
@@ -19,6 +20,13 @@ const AUTH0_CONFIG = {
 };
 
 const app = express();
+
+// Mock Token Vault config for demo mode (scopes only)
+const TOKEN_VAULT_CONFIG = {
+    googleCalendar: { scope: 'https://www.googleapis.com/auth/calendar' },
+    slack: { scope: 'chat:write' },
+    github: { scope: 'repo' }
+};
 
 // JWT validation middleware for API endpoints
 const jwtCheck = jwtAuth({
@@ -104,7 +112,8 @@ const config = {
 
 // Basic middleware
 app.use(express.json());
-app.use(express.static('../client'));
+// Serve static assets from client folder
+app.use(express.static(path.join(__dirname, '../client')));
 
 // Health check endpoint (must be before auth middleware)
 app.get('/api/health', (req, res) => {
@@ -152,8 +161,8 @@ if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0
     });
 }
 
-// Serve static files
-app.use(express.static(__dirname + '/public'));
+// Remove legacy public static folder (no-op in new structure)
+// app.use(express.static(__dirname + '/public'));
 
 // Middleware to check authentication
 const requireAuth = (req, res, next) => {
@@ -167,13 +176,8 @@ const requireAuth = (req, res, next) => {
 
 // Main application route
 app.get('/', (req, res) => {
-    if (req.oidc.isAuthenticated()) {
-        // User is authenticated, serve the main app
-        res.sendFile(__dirname + '/public/index.html');
-    } else {
-        // User is not authenticated, show landing page
-        res.sendFile(__dirname + '/public/index.html');
-    }
+    // Serve SPA index from client folder regardless of auth state
+    res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
 // API route to get user profile with enriched data
@@ -181,8 +185,12 @@ app.get('/api/profile', jwtCheck, async (req, res) => {
     try {
         const user = req.auth; // JWT payload contains user info
         
-        // Get detailed user information from Auth0 Management API
-        const userDetails = await management.getUser({ id: user.sub });
+        // If management client isn't configured, return basic JWT info in demo mode
+        let userDetails = { app_metadata: {} };
+        if (management) {
+            // Get detailed user information from Auth0 Management API
+            userDetails = await management.getUser({ id: user.sub });
+        }
         
         res.json({
             user: {
@@ -290,6 +298,14 @@ app.post('/api/fga/grant-access', jwtCheck, async (req, res) => {
     try {
         const { resource, relation, targetUser } = req.body;
         const user = req.auth; // JWT payload contains user info
+        
+        if (!fgaClient) {
+            // In demo mode, simulate success and return message
+            return res.json({
+                success: true,
+                message: `[Demo] Access granted: ${targetUser} can now ${relation} ${resource}`
+            });
+        }
         
         // Check if current user can grant access (must be owner or manager)
         const canGrant = await fgaClient.check({
