@@ -27,18 +27,19 @@
   "author": "Srijan Kumar",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "express-openid-connect": "^2.17.1",
-    "auth0": "^3.7.2",
     "@openfga/sdk": "^0.5.0",
+    "auth0": "^3.7.2",
     "axios": "^1.6.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "cors": "^2.8.5"
+    "express": "^4.18.2",
+    "express-oauth2-jwt-bearer": "^1.7.1",
+    "express-openid-connect": "^2.17.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "jest": "^29.7.0",
     "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
     "supertest": "^6.3.3"
   },
   "engines": {

@@ -5,6 +5,7 @@
 
 const express = require('express');
 const { auth } = require('express-openid-connect');
+const { auth: jwtAuth } = require('express-oauth2-jwt-bearer');
 const { ManagementClient, AuthenticationClient } = require('auth0');
 const axios = require('axios');
 require('dotenv').config();
@@ -14,10 +15,17 @@ const AUTH0_CONFIG = {
     domain: process.env.AUTH0_DOMAIN || 'demo.auth0.com',
     clientId: process.env.AUTH0_CLIENT_ID || 'demo-client-id',
     clientSecret: process.env.AUTH0_CLIENT_SECRET || 'demo-client-secret',
-    audience: process.env.AUTH0_AUDIENCE || `https://${process.env.AUTH0_DOMAIN || 'demo.auth0.com'}/api/v2/`,
+    audience: process.env.AUTH0_AUDIENCE || 'https://api.ai-project-manager.com',
 };
 
 const app = express();
+
+// JWT validation middleware for API endpoints
+const jwtCheck = jwtAuth({
+    audience: AUTH0_CONFIG.audience,
+    issuerBaseURL: `https://${AUTH0_CONFIG.domain}/`,
+    tokenSigningAlg: 'RS256'
+});
 
 // Auth0 Management Client for user management (with error handling)
 let management = null;
@@ -169,9 +177,9 @@ app.get('/', (req, res) => {
 });
 
 // API route to get user profile with enriched data
-app.get('/api/profile', requireAuth, async (req, res) => {
+app.get('/api/profile', jwtCheck, async (req, res) => {
     try {
-        const user = req.oidc.user;
+        const user = req.auth; // JWT payload contains user info
         
         // Get detailed user information from Auth0 Management API
         const userDetails = await management.getUser({ id: user.sub });
@@ -199,9 +207,9 @@ app.get('/api/profile', requireAuth, async (req, res) => {
 // Token Vault Integration Routes
 
 // Get Google Calendar token
-app.get('/api/tokens/google-calendar', requireAuth, async (req, res) => {
+app.get('/api/tokens/google-calendar', jwtCheck, async (req, res) => {
     try {
-        const user = req.oidc.user;
+        const user = req.auth; // JWT payload contains user info
         
         // In a real implementation, this would integrate with Auth0's Token Vault
         // For demo purposes, we'll simulate the token exchange
@@ -219,9 +227,9 @@ app.get('/api/tokens/google-calendar', requireAuth, async (req, res) => {
 });
 
 // Get Slack token
-app.get('/api/tokens/slack', requireAuth, async (req, res) => {
+app.get('/api/tokens/slack', jwtCheck, async (req, res) => {
     try {
-        const user = req.oidc.user;
+        const user = req.auth; // JWT payload contains user info
         const tokenResponse = await simulateTokenVaultExchange(user.sub, 'slack');
         
         res.json({
@@ -238,10 +246,10 @@ app.get('/api/tokens/slack', requireAuth, async (req, res) => {
 // Fine-Grained Authorization Routes
 
 // Check document access
-app.post('/api/fga/check-access', requireAuth, async (req, res) => {
+app.post('/api/fga/check-access', jwtCheck, async (req, res) => {
     try {
         const { resource, relation } = req.body;
-        const user = req.oidc.user;
+        const user = req.auth; // JWT payload contains user info
         
         if (!fgaClient) {
             // Mock permissions for demo when FGA not configured
@@ -278,10 +286,10 @@ app.post('/api/fga/check-access', requireAuth, async (req, res) => {
 });
 
 // Grant document access
-app.post('/api/fga/grant-access', requireAuth, async (req, res) => {
+app.post('/api/fga/grant-access', jwtCheck, async (req, res) => {
     try {
         const { resource, relation, targetUser } = req.body;
-        const user = req.oidc.user;
+        const user = req.auth; // JWT payload contains user info
         
         // Check if current user can grant access (must be owner or manager)
         const canGrant = await fgaClient.check({
@@ -314,10 +322,10 @@ app.post('/api/fga/grant-access', requireAuth, async (req, res) => {
 });
 
 // Asynchronous Authorization Route
-app.post('/api/async-approval', requireAuth, async (req, res) => {
+app.post('/api/async-approval', jwtCheck, async (req, res) => {
     try {
         const { action, resource, justification } = req.body;
-        const user = req.oidc.user;
+        const user = req.auth; // JWT payload contains user info
         
         // Store approval request (in production, this would be in a database)
         const approvalRequest = {
