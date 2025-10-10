@@ -328,79 +328,6 @@ function simulateTokenVaultAccess() {
     showNotification('Calendar data loaded via Token Vault', 'success');
 }
 
-// FGA simulation
-function simulateFGACheck() {
-    addSecurityLog('FGA check for document access', 'success', 'User authorized to view documents based on permissions');
-    showNotification('Document permissions verified via FGA', 'success');
-}
-
-// Approval request functions
-function requestApproval(actionType) {
-    const approvalRequest = {
-        id: Date.now(),
-        action: actionType,
-        status: 'pending',
-        timestamp: new Date(),
-        description: getApprovalDescription(actionType)
-    };
-    
-    appState.approvalRequests.push(approvalRequest);
-    
-    // Add to approval status display
-    updateApprovalStatus();
-    
-    // Add security log
-    addSecurityLog('Async authorization requested', 'pending', `CIBA flow initiated for ${actionType}`);
-    
-    showNotification('Approval request sent via CIBA flow', 'warning');
-    
-    // Simulate approval after 5 seconds for demo
-    setTimeout(() => {
-        approvalRequest.status = 'approved';
-        updateApprovalStatus();
-        addSecurityLog(`${actionType} approved`, 'success', 'CIBA approval received');
-        showNotification('Action approved by project manager', 'success');
-    }, 5000);
-}
-
-function getApprovalDescription(actionType) {
-    const descriptions = {
-        'slack-notification': 'Send team notification via Slack integration',
-        'delete-project': 'Delete project (high-risk operation)',
-        'bulk-invite': 'Send bulk team invitations',
-        'security-override': 'Override security policy'
-    };
-    return descriptions[actionType] || 'Unknown action';
-}
-
-function updateApprovalStatus() {
-    const approvalContainer = document.getElementById('approval-status');
-    if (!approvalContainer) return;
-    
-    approvalContainer.innerHTML = '';
-    
-    appState.approvalRequests.forEach(request => {
-        const approvalDiv = document.createElement('div');
-        approvalDiv.className = `approval-item ${request.status}`;
-        
-        const statusIcon = request.status === 'pending' ? '⏳' : 
-                          request.status === 'approved' ? '✅' : 
-                          request.status === 'denied' ? '❌' : '⏳';
-        
-        approvalDiv.innerHTML = `
-            <span class="approval-icon">${statusIcon}</span>
-            <div class="approval-details">
-                <h4>${request.description}</h4>
-                <p>${request.status === 'pending' ? 'Waiting for approval from project manager' : 
-                    request.status === 'approved' ? 'Approved by project manager' : 'Request denied'}</p>
-                <small>Initiated via CIBA flow at ${request.timestamp.toLocaleTimeString()}</small>
-            </div>
-        `;
-        
-        approvalContainer.appendChild(approvalDiv);
-    });
-}
-
 // Security logging
 function addSecurityLog(event, status, details) {
     const logEntry = {
@@ -704,7 +631,7 @@ function updateApprovalRequestsDisplay() {
     if (!approvalSection.contains(requestsList)) {
         approvalSection.appendChild(requestsList);
     }
-}
+    }
 
 // Initialize Auth0 login (replaces simulateLogin)
 function initiateLogin() {
@@ -755,10 +682,12 @@ async function requestApproval(action, resource) {
 }
 
 // Export functions for global access
-window.showLoginModal = showLoginModal;
-window.hideLoginModal = hideLoginModal;
-window.initiateLogin = initiateLogin;
-window.initiateAuth0Login = initiateAuth0Login;
+// Removed login modal and server-based login logic
+// Export functions for global access
+// window.showLoginModal = showLoginModal; // Removed
+// window.hideLoginModal = hideLoginModal; // Removed
+// window.initiateLogin = initiateLogin; // Removed
+// window.initiateAuth0Login = initiateAuth0Login; // Removed
 window.logout = logout;
 window.showSection = showSection;
 window.sendMessage = sendMessage;

@@ -9,6 +9,10 @@ A comprehensive demonstration of building secure agentic AI applications using A
 - **Health Check**: https://ai-project-manager-auth0.vercel.app/api/health
 - **Source Code**: https://github.com/Srijan-XI/ai-project-manager-auth0
 
+
+<a href="https://github.com/Srijan-XI"><img width="100%" loading="lazy" src="assets/demo1.png" /></a>
+<a href="https://github.com/Srijan-XI"><img width="100%" loading="lazy" src="assets/demo2.png" /></a>
+
 ## 🔒 Security Features Demonstrated
 
 ### 1. **Universal Login**

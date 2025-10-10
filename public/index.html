@@ -6,6 +6,9 @@
     <title>AI Project Manager - Secure AI Agents with Auth0</title>
     <link rel="stylesheet" href="style.css">
     <script src="auth0-config.js"></script>
+    <!-- Auth0 SPA SDK -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="auth0-spa-client.js"></script>
 </head>
 <body>
     <!-- Landing Page -->
@@ -17,7 +20,7 @@
                     <div class="logo">
                         <h2>🤖 AI Project Manager</h2>
                     </div>
-                    <button class="btn btn--primary" onclick="initiateLogin()">
+                    <button class="btn btn--primary" onclick="initiateAuth0Login()">
                         Login with Auth0
                     </button>
                 </div>
@@ -54,9 +57,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn--primary btn--lg" onclick="showLoginModal()">
-                        Start Secure Demo
-                    </button>
+                    <!-- Demo button removed for SPA Auth0 login only -->
                 </div>
                 
                 <div class="hero-image">
@@ -423,29 +424,7 @@ function App() {
         </main>
     </div>
 
-    <!-- Login Modal -->
-    <div id="login-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Auth0 Universal Login</h3>
-            <p>In a real implementation, this would redirect to Auth0's Universal Login page.</p>
-            <div class="login-form">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" value="srijan@techcorp.com" readonly />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" value="••••••••" readonly />
-                </div>
-                <button class="btn btn--primary btn--full-width" onclick="simulateLogin()">
-                    Continue with Auth0
-                </button>
-                <button class="btn btn--outline btn--full-width" onclick="hideLoginModal()">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Login Modal removed for SPA Auth0 login only -->
 
     <!-- Code Examples Modal -->
     <div id="code-modal" class="modal hidden">
