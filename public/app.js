@@ -30,23 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function initializeApp() {
     try {
-        // Check authentication status from server
-        const response = await fetch('/api/profile', {
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            appState.isAuthenticated = true;
-            appState.currentUser = data.user;
+        // Check authentication status from Auth0 SPA client
+        if (window.appState && window.appState.isAuthenticated) {
             showDashboard();
-            
-            // Load user permissions and tokens
             await loadUserPermissions();
             await loadTokenVaultTokens();
         } else {
-            // User not authenticated
-            appState.isAuthenticated = false;
             showLandingPage();
         }
     } catch (error) {
@@ -113,12 +102,8 @@ async function loadUserPermissions() {
         for (const resource of resources) {
             const relations = ['viewer', 'editor', 'owner'];
             for (const relation of relations) {
-                const response = await fetch('/api/fga/check-access', {
+                const response = await window.makeAuthenticatedRequest('/api/fga/check-access', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
                     body: JSON.stringify({
                         resource: resource,
                         relation: relation
@@ -145,18 +130,14 @@ async function loadUserPermissions() {
 async function loadTokenVaultTokens() {
     try {
         // Load Google Calendar token
-        const calendarResponse = await fetch('/api/tokens/google-calendar', {
-            credentials: 'include'
-        });
+        const calendarResponse = await window.makeAuthenticatedRequest('/api/tokens/google-calendar');
         if (calendarResponse.ok) {
             const calendarData = await calendarResponse.json();
             appState.tokenVaultTokens.set('google-calendar', calendarData);
         }
         
         // Load Slack token  
-        const slackResponse = await fetch('/api/tokens/slack', {
-            credentials: 'include'
-        });
+        const slackResponse = await window.makeAuthenticatedRequest('/api/tokens/slack');
         if (slackResponse.ok) {
             const slackData = await slackResponse.json();
             appState.tokenVaultTokens.set('slack', slackData);
@@ -519,12 +500,8 @@ async function viewDocument(docId, permission = null) {
 // Request document access through async authorization
 async function requestDocumentAccess(resource, relation) {
     try {
-        const response = await fetch('/api/async-approval', {
+        const response = await window.makeAuthenticatedRequest('/api/async-approval', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
             body: JSON.stringify({
                 action: 'access_document',
                 resource: resource,
@@ -565,9 +542,7 @@ async function refreshCalendarData() {
         
         if (!calendarToken) {
             // Token not available, refresh from Token Vault
-            const response = await fetch('/api/tokens/google-calendar', {
-                credentials: 'include'
-            });
+            const response = await window.makeAuthenticatedRequest('/api/tokens/google-calendar');
             
             if (response.ok) {
                 const tokenData = await response.json();
@@ -648,12 +623,8 @@ function logout() {
 // Enhanced approval request function
 async function requestApproval(action, resource) {
     try {
-        const response = await fetch('/api/async-approval', {
+        const response = await window.makeAuthenticatedRequest('/api/async-approval', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
             body: JSON.stringify({
                 action: action,
                 resource: resource || 'system',

@@ -59,8 +59,35 @@ async function getAccessToken() {
     }
 }
 
+// Helper function to make authenticated API calls
+async function makeAuthenticatedRequest(url, options = {}) {
+    try {
+        const token = await getAccessToken();
+        if (!token) {
+            throw new Error('No access token available');
+        }
+
+        const authOptions = {
+            ...options,
+            headers: {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const response = await fetch(url, authOptions);
+        return response;
+    } catch (error) {
+        console.error('Authenticated request failed:', error);
+        throw error;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', initAuth0);
 
-// Expose for HTML
+// Expose for HTML and app.js
 window.initiateAuth0Login = initiateAuth0Login;
 window.logout = logout;
+window.getAccessToken = getAccessToken;
+window.makeAuthenticatedRequest = makeAuthenticatedRequest;
