@@ -104,7 +104,7 @@ const config = {
 
 // Basic middleware
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('../client'));
 
 // Health check endpoint (must be before auth middleware)
 app.get('/api/health', (req, res) => {
