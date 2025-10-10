@@ -61,13 +61,13 @@ function showDashboard() {
     showSection('overview');
 }
 
-// Authentication functions
+// Authentication functions (legacy modal/login kept for reference; not used with SPA client)
 function showLoginModal() {
-    document.getElementById('login-modal').classList.remove('hidden');
+    // Legacy: no-op; SPA handles login via Auth0 Universal Login
 }
 
-// Redirect to Auth0 login
-function initiateAuth0Login() {
+// Legacy redirect flow (not used when SPA client is present)
+function legacyInitiateAuth0Login() {
     const authUrl = `https://${AUTH0_CONFIG.domain}/authorize?` + 
         `response_type=code&` +
         `client_id=${AUTH0_CONFIG.clientId}&` +
@@ -183,10 +183,11 @@ function simulateLogin() {
     }, 1500);
 }
 
-function logout() {
+// Legacy local logout (SPA logout should be used instead)
+function localLogout() {
     appState.isAuthenticated = false;
     showLandingPage();
-    showNotification('Logged out successfully', 'info');
+    showNotification('Logged out locally', 'info');
 }
 
 // Navigation functions
@@ -658,8 +659,8 @@ async function requestApproval(action, resource) {
 // window.showLoginModal = showLoginModal; // Removed
 // window.hideLoginModal = hideLoginModal; // Removed
 // window.initiateLogin = initiateLogin; // Removed
-// window.initiateAuth0Login = initiateAuth0Login; // Removed
-window.logout = logout;
+// window.initiateAuth0Login = initiateAuth0Login; // Removed (handled by SPA client)
+// Do not override SPA logout export
 window.showSection = showSection;
 window.sendMessage = sendMessage;
 window.requestApproval = requestApproval;

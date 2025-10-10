@@ -3,14 +3,29 @@
  * This file contains all Auth0-related configurations and integrations
  */
 
-// Auth0 Configuration
+// Safe env getter for browser and Node
+function getEnv(key, fallback) {
+    try {
+        if (typeof process !== 'undefined' && process.env && typeof process.env[key] !== 'undefined') {
+            return process.env[key] || fallback;
+        }
+    } catch (_) {}
+    // Optionally read from window.__ENV__ if provided at runtime
+    if (typeof window !== 'undefined' && window.__ENV__ && typeof window.__ENV__[key] !== 'undefined') {
+        return window.__ENV__[key] || fallback;
+    }
+    return fallback;
+}
+
+// Auth0 Configuration (browser-safe)
 const AUTH0_CONFIG = {
-    domain: process.env.AUTH0_DOMAIN || 'your-domain.auth0.com',
-    clientId: process.env.AUTH0_CLIENT_ID || 'your_client_id',
-    clientSecret: process.env.AUTH0_CLIENT_SECRET || 'your_client_secret', // Server-side only
-    audience: process.env.AUTH0_AUDIENCE || 'https://api.ai-project-manager.com',
+    domain: getEnv('AUTH0_DOMAIN', 'your-domain.auth0.com'),
+    clientId: getEnv('AUTH0_CLIENT_ID', 'your_client_id'),
+    // Note: clientSecret should not be used on the client; kept for completeness in Node context
+    clientSecret: getEnv('AUTH0_CLIENT_SECRET', 'your_client_secret'),
+    audience: getEnv('AUTH0_AUDIENCE', 'https://api.ai-project-manager.com'),
     scope: 'openid profile email read:projects write:projects manage:calendar',
-    redirectUri: process.env.AUTH0_REDIRECT_URI || 'https://localhost:3000/callback'
+    redirectUri: getEnv('AUTH0_REDIRECT_URI', (typeof window !== 'undefined' ? window.location.origin + '/callback' : 'http://localhost:3000/callback'))
 };
 
 // Token Vault Configuration
@@ -32,8 +47,8 @@ const TOKEN_VAULT_CONFIG = {
 // Fine-Grained Authorization Configuration
 const FGA_CONFIG = {
     store: {
-        id: process.env.FGA_STORE_ID || 'your-fga-store-id',
-        authorizationModelId: process.env.FGA_MODEL_ID || 'your-model-id'
+        id: getEnv('FGA_STORE_ID', 'your-fga-store-id'),
+        authorizationModelId: getEnv('FGA_MODEL_ID', 'your-model-id')
     },
     relations: {
         document: ['viewer', 'editor', 'owner'],
