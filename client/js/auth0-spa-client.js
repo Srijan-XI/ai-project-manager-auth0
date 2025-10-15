@@ -5,6 +5,11 @@ let auth0Client = null;
 
 async function initAuth0() {
     try {
+        // Check if createAuth0Client is available
+        if (typeof createAuth0Client === 'undefined') {
+            throw new Error('Auth0 SPA SDK not loaded - createAuth0Client is undefined');
+        }
+
         // Use config from auth0-config.js if available
         const config = window.AUTH0_CONFIG || {
             domain: 'genai-8649882471415737.us.auth0.com',
@@ -13,15 +18,25 @@ async function initAuth0() {
             scope: 'openid profile email read:projects write:projects manage:calendar'
         };
 
+        console.log('Creating Auth0 client with config:', {
+            domain: config.domain,
+            clientId: config.clientId,
+            redirectUri: config.redirectUri || window.location.origin,
+            audience: config.audience,
+            scope: config.scope
+        });
+
         auth0Client = await createAuth0Client({
             domain: config.domain,
             clientId: config.clientId,
             authorizationParams: {
-                redirect_uri: window.location.origin,
+                redirect_uri: config.redirectUri || window.location.origin,
                 audience: config.audience,
                 scope: config.scope
             }
         });
+
+        console.log('Auth0 client created successfully:', auth0Client);
 
         // Handle redirect callback
         if (window.location.search.includes('code=') && window.location.search.includes('state=')) {

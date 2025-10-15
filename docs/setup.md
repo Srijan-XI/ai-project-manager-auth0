@@ -45,14 +45,16 @@ npm install
 
 - Auth0 Dashboard > Applications > Create Application
 - Name: "AI Project Manager"
-- Type: "Regular Web Applications"
+- Type: **"Single Page Application"** ⚠️ Important!
+
+**Note:** For client-side authentication to work, you MUST select "Single Page Application" type, not "Regular Web Application".
 
 3. Configure Auth0 for local development:
 
 Allowed Callback URLs:
 
 ```
-http://localhost:3000/callback
+http://localhost:3000/callback, http://localhost:3000
 ```
 
 Allowed Logout URLs:
@@ -67,6 +69,8 @@ Allowed Web Origins:
 http://localhost:3000
 ```
 
+**Important:** Make sure to include both `/callback` and the base URL in Allowed Callback URLs.
+
 4. Run interactive setup:
 
 ```bash
@@ -74,6 +78,8 @@ npm run setup
 ```
 
 Provide your Auth0 Domain, Client ID, Client Secret and other values when prompted.
+
+**Note:** For Single Page Applications, the client secret is only used for server-side operations. The browser-side code uses a different authentication flow.
 
 5. Start the app locally:
 

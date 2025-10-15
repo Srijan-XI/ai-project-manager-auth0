@@ -19,10 +19,8 @@ function getEnv(key, fallback) {
 
 // Auth0 Configuration (browser-safe)
 const AUTH0_CONFIG = {
-    domain: getEnv('AUTH0_DOMAIN', 'your-domain.auth0.com'),
-    clientId: getEnv('AUTH0_CLIENT_ID', 'your_client_id'),
-    // Note: clientSecret should not be used on the client; kept for completeness in Node context
-    clientSecret: getEnv('AUTH0_CLIENT_SECRET', 'your_client_secret'),
+    domain: getEnv('AUTH0_DOMAIN', 'genai-8649882471415737.us.auth0.com'),
+    clientId: getEnv('AUTH0_CLIENT_ID', 'A7kUmty4eQnifEG9zjRjTaAa3wjWTzyO'),
     audience: getEnv('AUTH0_AUDIENCE', 'https://api.ai-project-manager.com'),
     scope: 'openid profile email read:projects write:projects manage:calendar',
     redirectUri: getEnv('AUTH0_REDIRECT_URI', (typeof window !== 'undefined' ? window.location.origin + '/callback' : 'http://localhost:3000/callback'))

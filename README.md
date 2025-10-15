@@ -97,7 +97,7 @@ ai-project-manager-auth0/
 
 ### 🏃‍♂️ Super Quick Start (No Domain Required!)
 
-**Don't have a domain?** No problem! See [`NO-DOMAIN-QUICKSTART.md`](./NO-DOMAIN-QUICKSTART.md) for a 15-minute setup guide.
+**Don't have a domain?** No problem! See [`scripts/NO-DOMAIN-QUICKSTART.md`](./scripts/NO-DOMAIN-QUICKSTART.md) for a 15-minute setup guide.
 
 ### Prerequisites
 
@@ -120,15 +120,32 @@ cp .env.example .env
 # Edit .env with your Auth0 credentials
 ```
 
+**Required Environment Variables:**
+```env
+AUTH0_DOMAIN=your-domain.auth0.com
+AUTH0_CLIENT_ID=your_client_id
+AUTH0_CLIENT_SECRET=your_client_secret
+AUTH0_AUDIENCE=https://api.ai-project-manager.com
+AUTH0_REDIRECT_URI=http://localhost:3000/callback
+
+# Optional: For Token Vault and FGA
+TOKEN_VAULT_URL=https://your-vault-url
+FGA_STORE_ID=your-fga-store-id
+FGA_API_URL=https://api.us1.fga.dev
+```
+
 ### 3. Set Up Auth0
 
 #### Universal Login Configuration
 ```javascript
 // In Auth0 Dashboard > Applications > Settings
-Allowed Callback URLs: http://localhost:3000/callback
+Application Type: Single Page Application
+Allowed Callback URLs: http://localhost:3000/callback, http://localhost:3000
 Allowed Logout URLs: http://localhost:3000
 Allowed Web Origins: http://localhost:3000
 ```
+
+**Important:** Make sure your application type is set to **Single Page Application (SPA)** for client-side authentication to work properly.
 
 #### Post-Login Action Setup
 1. Go to Auth0 Dashboard > Actions > Flows > Login
@@ -742,6 +759,195 @@ async function createProjectTaskAutonomously(projectData, userContext) {
 ---
 
 *This project demonstrates that secure AI agents aren't just possible—they're practical, powerful, and ready for enterprise deployment today.*
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. **Login Button Not Working**
+
+**Symptoms:**
+- Clicking "Login with Auth0" does nothing
+- Console shows: `Auth0 initialization error: {}`
+- No redirect to Auth0 login page
+
+**Solutions:**
+
+**A. Check Auth0 SDK Loading**
+```bash
+# Open browser console (F12) and check:
+typeof createAuth0Client
+# Should return: "function"
+# If "undefined", the SDK didn't load
+```
+
+**B. Verify Application Type**
+- Go to Auth0 Dashboard > Applications > Your App > Settings
+- **Application Type** MUST be: **Single Page Application**
+- NOT "Regular Web Application" or "Native"
+
+**C. Verify Callback URLs**
+```
+Auth0 Dashboard > Applications > Settings:
+- Allowed Callback URLs: http://localhost:3000/callback, http://localhost:3000
+- Allowed Logout URLs: http://localhost:3000
+- Allowed Web Origins: http://localhost:3000
+```
+
+**D. Check Script Loading Order**
+```html
+<!-- Correct order in index.html: -->
+<script src="js/auth0-config.js"></script>
+<script src="https://cdn.auth0.com/js/auth0-spa-js/1.22/auth0-spa-js.production.js"></script>
+<script src="js/auth0-spa-client.js"></script>
+```
+
+**E. Clear Browser Cache**
+```bash
+# Hard refresh: Ctrl+Shift+R (Windows/Linux) or Cmd+Shift+R (Mac)
+# Or clear all browser cache and try again
+```
+
+#### 2. **CORS Errors**
+
+**Symptoms:**
+```
+Access to XMLHttpRequest blocked by CORS policy
+```
+
+**Solutions:**
+
+**A. Check Allowed Web Origins in Auth0**
+```
+Auth0 Dashboard > Applications > Settings > Allowed Web Origins:
+http://localhost:3000
+```
+
+**B. Verify Server CORS Configuration**
+```javascript
+// In src/server.js, ensure:
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
+    credentials: true
+}));
+```
+
+#### 3. **Environment Variables Not Loading**
+
+**Symptoms:**
+- Server shows: `⚠️ Auth0 credentials not configured - using demo mode`
+- Console shows placeholder values
+
+**Solutions:**
+
+**A. Create .env File**
+```bash
+cp .env.example .env
+# Edit .env with your actual credentials
+```
+
+**B. Verify .env Format**
+```env
+# NO quotes, NO spaces around =
+AUTH0_DOMAIN=your-domain.auth0.com
+AUTH0_CLIENT_ID=your_client_id
+AUTH0_CLIENT_SECRET=your_client_secret
+```
+
+**C. Restart Server**
+```bash
+# Stop server (Ctrl+C), then restart:
+npm start
+```
+
+#### 4. **Token Expiration Issues**
+
+**Symptoms:**
+- User logged in but API calls fail with 401
+- "Token expired" errors
+
+**Solutions:**
+
+**A. Implement Token Refresh**
+```javascript
+// In client/js/auth0-spa-client.js
+async function getAccessToken() {
+    try {
+        return await auth0Client.getTokenSilently();
+    } catch (error) {
+        // Token expired, re-authenticate
+        await auth0Client.loginWithRedirect();
+    }
+}
+```
+
+#### 5. **FGA Permission Errors**
+
+**Symptoms:**
+- "FGA not configured" warnings
+- Permission checks always return false
+
+**Solutions:**
+
+**A. Verify FGA Environment Variables**
+```env
+FGA_STORE_ID=your-fga-store-id
+FGA_API_URL=https://api.us1.fga.dev
+FGA_CLIENT_ID=your-fga-client-id
+FGA_CLIENT_SECRET=your-fga-client-secret
+```
+
+**B. Check FGA Store Configuration**
+- Verify store exists in Auth0 Dashboard
+- Ensure authorization model is properly defined
+
+#### 6. **Deployment Issues (Vercel)**
+
+**Symptoms:**
+- Local works, but deployed version fails
+- "Invalid callback URL" errors in production
+
+**Solutions:**
+
+**A. Update Auth0 Callback URLs**
+```
+Add production URL to Auth0 Dashboard:
+https://your-app.vercel.app/callback
+https://your-app.vercel.app
+```
+
+**B. Set Vercel Environment Variables**
+- Go to Vercel Dashboard > Your Project > Settings > Environment Variables
+- Add all AUTH0_* variables from your .env file
+- Redeploy the application
+
+#### 7. **Debug Page for Diagnostics**
+
+Access the debug page to diagnose issues:
+```
+http://localhost:3000/debug.html
+```
+
+This page will show:
+- ✅/❌ Auth0 Config loaded
+- ✅/❌ Auth0 SDK loaded  
+- ✅/❌ Functions defined
+- ✅/❌ Client initialized
+- Console output with detailed errors
+
+### Getting Help
+
+If issues persist:
+
+1. **Check Browser Console** (F12) for detailed error messages
+2. **Check Server Logs** for backend errors
+3. **Review Auth0 Logs** in Dashboard > Monitoring > Logs
+4. **Open GitHub Issue** with:
+   - Error message (remove sensitive data)
+   - Steps to reproduce
+   - Browser and Node.js versions
 
 ---
 

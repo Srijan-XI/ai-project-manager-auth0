@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth0 Login Debug</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Auth0 Login Diagnostic</h1>
+    
+    <div id="status"></div>
+    
+    <button onclick="testLogin()">Test Login Button</button>
+    <button onclick="checkConfig()">Check Configuration</button>
+    
+    <h2>Console Output:</h2>
+    <pre id="console"></pre>
+    
+    <script src="js/auth0-config.js"></script>
+    <script 
+        src="https://cdn.auth0.com/js/auth0-spa-js/1.22/auth0-spa-js.production.js"
+        onload="console.log('✅ Auth0 SDK script loaded successfully', typeof createAuth0Client)"
+        onerror="console.error('❌ Failed to load Auth0 SDK script')"
+    ></script>
+    <script src="js/auth0-spa-client.js"></script>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const consoleDiv = document.getElementById('console');
+        
+        // Override console.log to display in page
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(type, ...args) {
+            const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
+            consoleDiv.textContent += `[${type}] ${msg}\n`;
+        }
+        
+        console.log = function(...args) {
+            addToConsole('LOG', ...args);
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            addToConsole('ERROR', ...args);
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            addToConsole('WARN', ...args);
+            originalWarn.apply(console, args);
+        };
+        
+        function showStatus(message, type) {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            statusDiv.appendChild(div);
+        }
+        
+        function checkConfig() {
+            showStatus('Checking configuration...', 'info');
+            
+            // Check if AUTH0_CONFIG is loaded
+            if (typeof window.AUTH0_CONFIG === 'undefined') {
+                showStatus('❌ AUTH0_CONFIG is not defined!', 'error');
+            } else {
+                showStatus('✅ AUTH0_CONFIG loaded', 'success');
+                console.log('AUTH0_CONFIG:', window.AUTH0_CONFIG);
+            }
+            
+            // Check if createAuth0Client is available
+            if (typeof createAuth0Client === 'undefined') {
+                showStatus('❌ Auth0 SPA SDK not loaded!', 'error');
+            } else {
+                showStatus('✅ Auth0 SPA SDK loaded', 'success');
+            }
+            
+            // Check if initiateAuth0Login is defined
+            if (typeof window.initiateAuth0Login === 'undefined') {
+                showStatus('❌ initiateAuth0Login is NOT defined!', 'error');
+            } else {
+                showStatus('✅ initiateAuth0Login is defined', 'success');
+            }
+            
+            // Check auth0Client initialization
+            setTimeout(() => {
+                if (typeof auth0Client === 'undefined') {
+                    showStatus('❌ auth0Client variable not accessible', 'error');
+                } else if (auth0Client === null) {
+                    showStatus('⚠️ auth0Client is null - may still be initializing', 'error');
+                } else {
+                    showStatus('✅ auth0Client is initialized', 'success');
+                }
+            }, 2000);
+        }
+        
+        function testLogin() {
+            showStatus('Testing login button...', 'info');
+            
+            if (typeof window.initiateAuth0Login === 'function') {
+                showStatus('✅ Calling initiateAuth0Login()...', 'success');
+                window.initiateAuth0Login();
+            } else {
+                showStatus('❌ initiateAuth0Login is not a function!', 'error');
+            }
+        }
+        
+        // Auto-check on load
+        window.addEventListener('load', function() {
+            setTimeout(checkConfig, 1000);
+        });
+    </script>
+</body>
+</html>
